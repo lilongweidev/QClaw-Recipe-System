@@ -4,11 +4,37 @@ from schemas import RecipeCreate, RecipeUpdate
 from typing import Optional, List
 
 
-def get_recipes(db: Session, skip: int = 0, limit: int = 20, keyword: Optional[str] = None) -> List[Recipe]:
+def get_recipes(
+    db: Session,
+    skip: int = 0,
+    limit: int = 20,
+    keyword: Optional[str] = None,
+    category: Optional[str] = None,
+    sort: Optional[str] = "newest",
+    favorites_only: bool = False,
+) -> List[Recipe]:
     query = db.query(Recipe)
+
     if keyword:
         query = query.filter(Recipe.title.contains(keyword))
-    return query.order_by(Recipe.id.desc()).offset(skip).limit(limit).all()
+    if category:
+        query = query.filter(Recipe.category == category)
+    if favorites_only:
+        query = query.filter(Recipe.is_favorite == True)
+
+    # 排序
+    if sort == "newest":
+        query = query.order_by(Recipe.created_at.desc())
+    elif sort == "oldest":
+        query = query.order_by(Recipe.created_at.asc())
+    elif sort == "time_asc":
+        query = query.order_by(Recipe.cook_time.asc())
+    elif sort == "time_desc":
+        query = query.order_by(Recipe.cook_time.desc())
+    elif sort == "name":
+        query = query.order_by(Recipe.title.asc())
+
+    return query.offset(skip).limit(limit).all()
 
 
 def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
@@ -44,8 +70,17 @@ def delete_recipe(db: Session, recipe_id: int) -> bool:
     return True
 
 
-def count_recipes(db: Session, keyword: Optional[str] = None) -> int:
+def count_recipes(
+    db: Session,
+    keyword: Optional[str] = None,
+    category: Optional[str] = None,
+    favorites_only: bool = False,
+) -> int:
     query = db.query(Recipe)
     if keyword:
         query = query.filter(Recipe.title.contains(keyword))
+    if category:
+        query = query.filter(Recipe.category == category)
+    if favorites_only:
+        query = query.filter(Recipe.is_favorite == True)
     return query.count()

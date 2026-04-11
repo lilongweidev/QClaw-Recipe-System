@@ -1,17 +1,23 @@
 <template>
-  <div class="form-overlay">
+  <div class="form-overlay" @click.self="$emit('cancel')">
     <div class="form-panel">
-      <h2>{{ isEdit ? '编辑菜谱' : '新增菜谱' }}</h2>
+      <div class="form-header">
+        <h2 class="form-title">{{ isEdit ? '编辑菜谱' : '新增菜谱' }}</h2>
+        <button class="btn-icon" @click="$emit('cancel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
       <form @submit.prevent="submit">
         <div class="form-group">
           <label>菜谱名称 *</label>
-          <input v-model="form.title" required placeholder="例如：红烧肉" />
+          <input class="form-control" v-model="form.title" required placeholder="例如：红烧肉" />
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>分类 *</label>
-            <select v-model="form.category" required>
+            <select class="form-control" v-model="form.category" required>
               <option value="">请选择</option>
               <option>家常菜</option>
               <option>川菜</option>
@@ -23,13 +29,13 @@
               <option>苏菜</option>
               <option>徽菜</option>
               <option>西餐</option>
-              <option>甜点</option>
+              <option>甜品</option>
               <option>饮品</option>
             </select>
           </div>
           <div class="form-group">
             <label>难度 *</label>
-            <select v-model="form.difficulty" required>
+            <select class="form-control" v-model="form.difficulty" required>
               <option value="">请选择</option>
               <option>简单</option>
               <option>中等</option>
@@ -38,23 +44,31 @@
           </div>
           <div class="form-group">
             <label>烹饪时间（分钟） *</label>
-            <input v-model.number="form.cook_time" type="number" min="1" required placeholder="30" />
+            <input class="form-control" v-model.number="form.cook_time" type="number" min="1" required placeholder="30" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>图片链接</label>
+          <input class="form-control" v-model="form.image_url" placeholder="https://images.unsplash.com/..." />
+          <div v-if="form.image_url" style="margin-top:8px;border-radius:8px;overflow:hidden;height:120px;">
+            <img :src="form.image_url" style="width:100%;height:100%;object-fit:cover;" @error="form.image_url=''" />
           </div>
         </div>
 
         <div class="form-group">
           <label>配料（每行一个）</label>
-          <textarea v-model="ingredientsText" rows="4" placeholder="鸡蛋 3个&#10;番茄 2个&#10;盐 适量"></textarea>
+          <textarea class="form-control" v-model="ingredientsText" rows="4" placeholder="鸡蛋 3个&#10;番茄 2个&#10;盐 适量"></textarea>
         </div>
 
         <div class="form-group">
           <label>烹饪步骤（每行一步）</label>
-          <textarea v-model="stepsText" rows="6" placeholder="番茄切块&#10;鸡蛋打散&#10;热油下锅"></textarea>
+          <textarea class="form-control" v-model="stepsText" rows="6" placeholder="番茄切块&#10;鸡蛋打散&#10;热油下锅"></textarea>
         </div>
 
         <div class="form-actions">
-          <button type="button" @click="$emit('cancel')" class="btn-cancel">取消</button>
-          <button type="submit" class="btn-submit">{{ isEdit ? '保存修改' : '创建菜谱' }}</button>
+          <button type="button" @click="$emit('cancel')" class="btn btn-ghost">取消</button>
+          <button type="submit" class="btn btn-primary">{{ isEdit ? '保存修改' : '创建菜谱' }}</button>
         </div>
       </form>
     </div>
@@ -87,8 +101,7 @@ const form = ref({
   category: '',
   difficulty: '',
   cook_time: 30,
-  ingredients: '[]',
-  steps: '[]',
+  image_url: '',
 })
 
 const ingredientsText = ref('')
@@ -96,11 +109,17 @@ const stepsText = ref('')
 
 watch(() => props.recipe, (r) => {
   if (r) {
-    form.value = { ...r }
+    form.value = {
+      title: r.title,
+      category: r.category,
+      difficulty: r.difficulty,
+      cook_time: r.cook_time,
+      image_url: r.image_url || '',
+    }
     ingredientsText.value = linesToText(parseJsonField(r.ingredients))
     stepsText.value = linesToText(parseJsonField(r.steps))
   } else {
-    form.value = { title: '', category: '', difficulty: '', cook_time: 30, ingredients: '[]', steps: '[]' }
+    form.value = { title: '', category: '', difficulty: '', cook_time: 30, image_url: '' }
     ingredientsText.value = ''
     stepsText.value = ''
   }

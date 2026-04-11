@@ -3,7 +3,6 @@ import json
 from database import engine, Base, SessionLocal
 from models import Recipe
 
-# 创建表
 Base.metadata.create_all(bind=engine)
 
 SEED_RECIPES = [
@@ -21,6 +20,8 @@ SEED_RECIPES = [
         ]),
         "cook_time": 15,
         "difficulty": "简单",
+        "image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
+        "is_favorite": True,
     },
     {
         "title": "红烧肉",
@@ -37,6 +38,8 @@ SEED_RECIPES = [
         ]),
         "cook_time": 90,
         "difficulty": "中等",
+        "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80",
+        "is_favorite": True,
     },
     {
         "title": "蒜蓉西兰花",
@@ -51,6 +54,8 @@ SEED_RECIPES = [
         ]),
         "cook_time": 10,
         "difficulty": "简单",
+        "image_url": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=800&q=80",
+        "is_favorite": False,
     },
     {
         "title": "宫保鸡丁",
@@ -68,6 +73,8 @@ SEED_RECIPES = [
         ]),
         "cook_time": 30,
         "difficulty": "中等",
+        "image_url": "https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&q=80",
+        "is_favorite": False,
     },
     {
         "title": "清蒸鲈鱼",
@@ -84,24 +91,82 @@ SEED_RECIPES = [
         ]),
         "cook_time": 25,
         "difficulty": "简单",
+        "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80",
+        "is_favorite": False,
+    },
+    {
+        "title": "糖醋里脊",
+        "category": "鲁菜",
+        "ingredients": json.dumps(["猪里脊 300g", "淀粉 适量", "鸡蛋 1个", "番茄酱 3勺", "白醋 2勺", "糖 2勺", "盐 适量", "白芝麻 少许"]),
+        "steps": json.dumps([
+            "里脊肉切条，加盐、料酒、蛋清腌制15分钟",
+            "裹上干淀粉备用",
+            "调糖醋汁：番茄酱、白醋、糖、少许盐和清水调匀",
+            "油温六成热，下肉条炸至金黄酥脆，捞出复炸一次",
+            "锅中留底油，倒入糖醋汁烧开",
+            "下炸好的肉条快速翻炒均匀",
+            "撒上白芝麻即可出锅"
+        ]),
+        "cook_time": 40,
+        "difficulty": "困难",
+        "image_url": "https://images.unsplash.com/photo-1561043433-aaf687c4cf04?w=800&q=80",
+        "is_favorite": False,
+    },
+    {
+        "title": "奶油蘑菇汤",
+        "category": "西餐",
+        "ingredients": json.dumps(["口蘑 200g", "洋葱 半个", "黄油 30g", "奶油 100ml", "面粉 2勺", "鸡汤 300ml", "盐 适量", "黑胡椒 少许"]),
+        "steps": json.dumps([
+            "口蘑洗净切片，洋葱切丁备用",
+            "小火热锅，下黄油融化",
+            "下洋葱丁炒至透明",
+            "加入面粉翻炒1分钟去生",
+            "慢慢倒入鸡汤，边倒边搅拌防止结块",
+            "加入蘑菇片，煮10分钟至软烂",
+            "倒入奶油搅匀，小火再煮5分钟",
+            "加盐和黑胡椒调味，出锅"
+        ]),
+        "cook_time": 30,
+        "difficulty": "中等",
+        "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
+        "is_favorite": False,
+    },
+    {
+        "title": "杨枝甘露",
+        "category": "甜品",
+        "ingredients": json.dumps(["芒果 2个", "西米 50g", "椰浆 200ml", "淡奶油 100ml", "西柚果肉 适量", "糖 适量"]),
+        "steps": json.dumps([
+            "西米沸水下锅，煮至中间有小白点，焖5分钟至透明，过凉水备用",
+            "芒果去皮切块，一半打泥，一半切丁",
+            "椰浆和淡奶油混合，加少许糖调味",
+            "西柚剥出果肉备用",
+            "碗底铺西米，倒入芒果泥",
+            "加入椰奶奶油液",
+            "顶部放芒果丁和西柚果肉",
+            "冷藏2小时后享用更佳"
+        ]),
+        "cook_time": 20,
+        "difficulty": "简单",
+        "image_url": "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=800&q=80",
+        "is_favorite": True,
     },
 ]
+
 
 def seed():
     db = SessionLocal()
     try:
-        # 如果已有数据则跳过
         count = db.query(Recipe).count()
         if count > 0:
             print(f"数据库已有 {count} 条菜谱，跳过初始化。")
             return
-
         for r in SEED_RECIPES:
             db.add(Recipe(**r))
         db.commit()
         print(f"成功插入 {len(SEED_RECIPES)} 条示例菜谱！")
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     seed()

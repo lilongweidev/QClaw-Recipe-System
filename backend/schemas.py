@@ -6,14 +6,14 @@ from typing import Optional
 class RecipeBase(BaseModel):
     title: str
     category: str
-    ingredients: str  # JSON string
-    steps: str        # JSON string
+    ingredients: str
+    steps: str
     cook_time: int
     difficulty: str
 
 
 class RecipeCreate(RecipeBase):
-    pass
+    image_url: Optional[str] = None
 
 
 class RecipeUpdate(BaseModel):
@@ -23,10 +23,14 @@ class RecipeUpdate(BaseModel):
     steps: Optional[str] = None
     cook_time: Optional[int] = None
     difficulty: Optional[str] = None
+    image_url: Optional[str] = None
+    is_favorite: Optional[bool] = None
 
 
 class RecipeResponse(RecipeBase):
     id: int
+    image_url: Optional[str] = None
+    is_favorite: bool = False
     created_at: Optional[datetime] = None
 
     class Config:
