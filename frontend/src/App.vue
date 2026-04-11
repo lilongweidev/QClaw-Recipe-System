@@ -81,7 +81,7 @@
       </header>
 
       <!-- 列表视图 -->
-      <template v-if="view === 'list'">
+      <div v-if="view === 'list'">
         <div class="toolbar">
           <div class="toolbar-left">
             <span class="result-count">共 <strong>{{ total }}</strong> 道菜谱</span>
@@ -124,7 +124,7 @@
           <span class="page-info">{{ page + 1 }} / {{ totalPages }}</span>
           <button :disabled="page >= totalPages - 1" @click="page++; fetchRecipes()">下一页</button>
         </div>
-      </template>
+      </div>
 
       <!-- 详情视图 -->
       <RecipeDetail
@@ -140,7 +140,7 @@
       <RecipeForm
         v-else-if="view === 'form'"
         :recipe="formRecipe"
-        @success="onFormSuccess"
+        @success="(isEdit) => onFormSuccess(isEdit)"
         @cancel="view = 'list'; formRecipe = null"
       />
     </div>
@@ -247,12 +247,10 @@ async function fetchFavoritesCount() {
 const currentRecipe = ref(null)
 
 function viewDetail(id) {
-  currentRecipe.value = recipes.value.find(r => r.id === id) || null
-  if (!currentRecipe.value) {
-    recipeAPI.get(id).then(r => { currentRecipe.value = r.data; view.value = 'detail' })
-  } else {
+  recipeAPI.get(id).then(r => {
+    currentRecipe.value = r.data
     view.value = 'detail'
-  }
+  })
 }
 
 function openEdit(recipe) {
@@ -300,10 +298,10 @@ function onDeleted() {
   fetchFavoritesCount()
 }
 
-async function onFormSuccess() {
+async function onFormSuccess(isEdit) {
   view.value = 'list'
   formRecipe.value = null
-  showToast(formRecipe.value?.id ? '修改成功' : '创建成功')
+  showToast(isEdit ? '修改成功' : '创建成功')
   fetchRecipes()
   fetchCategories()
   fetchFavoritesCount()

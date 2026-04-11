@@ -136,6 +136,6 @@ async function submit() {
   } else {
     await recipeAPI.create(data)
   }
-  emit('success')
+  emit('success', isEdit.value)
 }
 </script>
