@@ -33,11 +33,10 @@ npm run dev
 
 ```bash
 docker build -t qclaw-recipes .
-docker run -d -p 8000:8000 -p 5173:80 qclaw-recipes
+docker run -d -p 8000:8000 qclaw-recipes
 ```
 
-- 前端：http://localhost:5173
-- 后端 API：http://localhost:8000
+- 前端 + 后端：http://localhost:8000
 - API 文档：http://localhost:8000/docs
 
 ## 功能特性

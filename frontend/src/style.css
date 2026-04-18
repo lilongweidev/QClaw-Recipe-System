@@ -34,7 +34,9 @@ body {
   min-height: 100vh;
 }
 
-#app { display: flex; min-height: 100vh; }
+#app {
+  min-height: 100vh;
+}
 
 /* ===== 侧边栏 ===== */
 .sidebar {
@@ -177,10 +179,10 @@ body {
 /* ===== 主内容区 ===== */
 .main-content {
   margin-left: 240px;
-  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
 }
 
 /* ===== 顶部栏 ===== */
@@ -195,6 +197,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 40;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .topbar-title {
@@ -802,6 +806,14 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   pointer-events: none;
 }
 
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 45;
+  display: none;
+}
+
 .toast {
   display: flex;
   align-items: center;
@@ -839,11 +851,31 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
 /* ===== 移动端 ===== */
+.btn-menu {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text);
+}
+
+.btn-menu svg { width: 22px; height: 22px; }
+
+.sidebar-overlay {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
   .main-content { margin-left: 0; }
   .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); padding: 0 16px 32px; }
   .toolbar { padding: 16px 16px 12px; }
   .topbar { padding: 0 16px; }
   .search-box { width: 180px; }
+  .btn-menu { display: flex; }
+  .sidebar-overlay {
+    display: block;
+  }
 }

@@ -1,21 +1,7 @@
 <template>
   <div id="app">
-    <!-- Toast -->
-    <div class="toast-container">
-      <div
-        v-for="t in toasts"
-        :key="t.id"
-        :class="['toast', `toast-${t.type}`]"
-      >
-        <svg v-if="t.type==='success'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <svg v-else-if="t.type==='error'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        {{ t.message }}
-      </div>
-    </div>
-
     <!-- 侧边栏 -->
-    <aside class="sidebar">
+    <aside :class="['sidebar', { open: sidebarOpen }]">
       <div class="sidebar-brand">
         <div class="logo">
           <div class="logo-icon">🍳</div>
@@ -66,6 +52,9 @@
     <div class="main-content">
       <!-- 顶部栏 -->
       <header class="topbar">
+        <button class="btn-menu" @click="sidebarOpen = !sidebarOpen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <div class="topbar-title">{{ currentViewTitle }}</div>
         <div class="topbar-spacer"></div>
         <div class="search-box">
@@ -144,6 +133,25 @@
         @cancel="view = 'list'; formRecipe = null"
       />
     </div>
+
+    <!-- Toast（Teleport到body，不影响grid布局） -->
+    <Teleport to="body">
+      <div class="toast-container">
+        <div
+          v-for="t in toasts"
+          :key="t.id"
+          :class="['toast', `toast-${t.type}`]"
+        >
+          <svg v-if="t.type==='success'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg v-else-if="t.type==='error'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          {{ t.message }}
+        </div>
+      </div>
+
+      <!-- 移动端遮罩 -->
+      <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false"></div>
+    </Teleport>
   </div>
 </template>
 
@@ -164,6 +172,9 @@ const sort = ref('newest')
 const activeFilter = ref('all')
 const categories = ref([])
 const toasts = ref([])
+const formRecipe = ref(null)
+const currentRecipe = ref(null)
+const sidebarOpen = ref(false)
 
 const totalCount = computed(() => total.value)
 const favoritesCount = ref(0)
@@ -197,6 +208,7 @@ function showToast(message, type = 'success') {
 function setFilter(key) {
   activeFilter.value = key
   page.value = 0
+  sidebarOpen.value = false
   fetchRecipes()
 }
 
@@ -243,8 +255,6 @@ async function fetchFavoritesCount() {
     favoritesCount.value = res.data.total
   } catch (e) { /* silent */ }
 }
-
-const currentRecipe = ref(null)
 
 function viewDetail(id) {
   recipeAPI.get(id).then(r => {

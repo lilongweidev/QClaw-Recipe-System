@@ -88,12 +88,17 @@ function parseLines(text) {
   return text.split('\n').map(s => s.trim()).filter(Boolean)
 }
 
-function linesToText(arr) {
-  return Array.isArray(arr) ? arr.join('\n') : ''
-}
-
-function parseJsonField(field) {
-  try { return JSON.parse(field) } catch { return [] }
+/**
+ * 解析字段为文本行：
+ * 优先按 JSON 数组解析，失败则按换行符拆分（兼容纯文本脏数据）
+ */
+function parseFieldToLines(field) {
+  if (!field) return ''
+  try {
+    const arr = JSON.parse(field)
+    if (Array.isArray(arr)) return arr.map(String).join('\n')
+  } catch { /* not JSON */ }
+  return String(field)
 }
 
 const form = ref({
@@ -116,8 +121,8 @@ watch(() => props.recipe, (r) => {
       cook_time: r.cook_time,
       image_url: r.image_url || '',
     }
-    ingredientsText.value = linesToText(parseJsonField(r.ingredients))
-    stepsText.value = linesToText(parseJsonField(r.steps))
+    ingredientsText.value = parseFieldToLines(r.ingredients)
+    stepsText.value = parseFieldToLines(r.steps)
   } else {
     form.value = { title: '', category: '', difficulty: '', cook_time: 30, image_url: '' }
     ingredientsText.value = ''
@@ -126,16 +131,20 @@ watch(() => props.recipe, (r) => {
 }, { immediate: true })
 
 async function submit() {
-  const data = {
-    ...form.value,
-    ingredients: JSON.stringify(parseLines(ingredientsText.value)),
-    steps: JSON.stringify(parseLines(stepsText.value)),
+  try {
+    const data = {
+      ...form.value,
+      ingredients: JSON.stringify(parseLines(ingredientsText.value)),
+      steps: JSON.stringify(parseLines(stepsText.value)),
+    }
+    if (isEdit.value) {
+      await recipeAPI.update(props.recipe.id, data)
+    } else {
+      await recipeAPI.create(data)
+    }
+    emit('success', isEdit.value)
+  } catch (e) {
+    alert('保存失败，请检查输入后重试')
   }
-  if (isEdit.value) {
-    await recipeAPI.update(props.recipe.id, data)
-  } else {
-    await recipeAPI.create(data)
-  }
-  emit('success', isEdit.value)
 }
 </script>
